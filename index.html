@@ -1,0 +1,933 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Seni Musik</title>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100%;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .container {
+      width: 100%;
+      min-height: 100%;
+      padding: 2rem 1.5rem;
+      overflow-y: auto;
+    }
+
+    .quiz-card {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .quiz-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 3px solid #667eea;
+    }
+
+    .quiz-title {
+      font-size: 2rem;
+      color: #667eea;
+      margin: 0 0 0.5rem 0;
+      font-weight: 700;
+    }
+
+    .quiz-subtitle {
+      font-size: 1rem;
+      color: #6b7280;
+      margin: 0;
+    }
+
+    .student-form {
+      background: #f3f4f6;
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    .school-logo {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 1.5rem;
+      display: block;
+      object-fit: contain;
+    }
+
+    .btn-start {
+      width: 100%;
+      padding: 1rem;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 1rem;
+    }
+
+    .btn-start:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-start:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .quiz-content {
+      display: none;
+    }
+
+    .quiz-content.active {
+      display: block;
+    }
+
+    .question-card {
+      background: #f9fafb;
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid #667eea;
+    }
+
+    .question-number {
+      font-size: 0.9rem;
+      color: #667eea;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .question-text {
+      font-size: 1.05rem;
+      color: #1f2937;
+      margin-bottom: 1rem;
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .option:hover {
+      border-color: #667eea;
+      background: #f0f3ff;
+    }
+
+    .option input[type="radio"] {
+      margin-right: 0.75rem;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .option-label {
+      font-size: 0.95rem;
+      color: #374151;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .navigation-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.875rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-previous {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .btn-previous:hover {
+      background: #d1d5db;
+    }
+
+    .btn-next, .btn-submit {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-next:hover, .btn-submit:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      transition: width 0.3s;
+      border-radius: 4px;
+    }
+
+    .result-screen {
+      display: none;
+      text-align: center;
+    }
+
+    .result-screen.active {
+      display: block;
+    }
+
+    .score-display {
+      font-size: 4rem;
+      font-weight: 700;
+      color: #667eea;
+      margin: 1rem 0;
+    }
+
+    .result-message {
+      font-size: 1.25rem;
+      color: #374151;
+      margin-bottom: 2rem;
+    }
+
+    .student-info {
+      background: #f3f4f6;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+
+    .student-info p {
+      margin: 0.5rem 0;
+      color: #4b5563;
+    }
+
+    .btn-restart {
+      background: #10b981;
+      color: white;
+      padding: 1rem 2.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-restart:hover {
+      background: #059669;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    @media (max-width: 640px) {
+      .quiz-card {
+        padding: 1.5rem;
+      }
+
+      .quiz-title {
+        font-size: 1.5rem;
+      }
+
+      .navigation-buttons {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div class="quiz-card">
+    <div class="quiz-header"><img src="https://raw.githubusercontent.com/pakfab/Quuiiizzzzz/984d4c41d0c251e352578002e16e4084145d650d/logosma.png" alt="Logo Sekolah" class="school-logo" onerror="this.style.display='none';">
+     <h1 class="quiz-title" id="quiz-title">Quiz Seni Musik</h1>
+     <p class="quiz-subtitle" id="instruction-text">Jawablah pertanyaan berikut dengan memilih salah satu jawaban yang paling tepat</p>
+    </div>
+    <div id="student-form-section" class="student-form">
+     <div class="form-group"><label class="form-label" for="student-name">Nama Lengkap</label> <input type="text" id="student-name" class="form-input" placeholder="Masukkan nama lengkap Anda" required>
+     </div>
+     <div class="form-group"><label class="form-label" for="student-class">Kelas</label> <input type="text" id="student-class" class="form-input" placeholder="Kelasmu" required>
+     </div><button id="btn-start" class="btn-start">Gas!</button>
+    </div>
+    <div id="quiz-content" class="quiz-content">
+     <div class="progress-bar">
+      <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+     </div>
+     <div id="questions-container"></div>
+     <div class="navigation-buttons"><button id="btn-previous" class="btn btn-previous">Sebelumnya</button> <button id="btn-next" class="btn btn-next">Selanjutnya</button> <button id="btn-submit" class="btn btn-submit" style="display: none;">Selesai</button>
+     </div>
+    </div>
+    <div id="result-screen" class="result-screen">
+     <h2 style="color: #10b981; margin-bottom: 1rem;">🎉 Dah Beres! SS Kirim Ke Wa Pak Fab Yes! 🎉</h2>
+     <div class="student-info" id="result-student-info"></div>
+     <div class="score-display" id="score-display">
+      0
+     </div>
+     <p class="result-message" id="result-message"></p><button id="btn-restart" class="btn-restart">Kerjakan Kuis Lagi</button>
+    </div>
+   </div>
+  </div>
+  <script>
+    const questions = [
+      {
+        question: "Pola interval (jarak nada) yang benar untuk tangga nada diatonis mayor adalah...",
+        options: [
+          "A. 1 – 1 – ½ – 1 – 1 – 1 – ½",
+          "B. 1 – ½ – 1 – 1 – ½ – 1 – 1",
+          "C. 1 – 1 – 1 – ½ – 1 – 1 – ½",
+          "D. 1 – ½ – 1 – 1 – 1 – 1 – ½",
+          "E. 1 – 1 – ½ – 1 – 1 – ½ – 1"
+        ],
+        correct: "A"
+      },
+      {
+        question: "Tangga nada mayor biasanya memiliki karakter lagu yang...",
+        options: [
+          "A. Sedih dan syahdu",
+          "B. Kurang bersemangat dan melankolis",
+          "C. Riang gembira dan bersemangat",
+          "D. Menakutkan dan tegang",
+          "E. Mistis dan gelap"
+        ],
+        correct: "C"
+      },
+      {
+        question: "Tangga nada natural mayor yang tidak memiliki tanda kromatika (mol atau kruis) adalah...",
+        options: [
+          "A. G Mayor",
+          "B. F Mayor",
+          "C. D Mayor",
+          "D. C Mayor",
+          "E. A Mayor"
+        ],
+        correct: "D"
+      },
+      {
+        question: "Pada tangga nada G Mayor, nada yang harus dinaikkan setengah laras (mendapat tanda #) adalah...",
+        options: [
+          "A. C menjadi Cis",
+          "B. F menjadi Fis",
+          "C. G menjadi Gis",
+          "D. D menjadi Dis",
+          "E. A menjadi Ais"
+        ],
+        correct: "B"
+      },
+      {
+        question: "Tangga nada F Mayor memiliki satu tanda mol (b). Nada yang diturunkan setengah laras adalah...",
+        options: [
+          "A. B menjadi Bes",
+          "B. E menjadi Es",
+          "C. A menjadi As",
+          "D. D menjadi Des",
+          "E. G menjadi Ges"
+        ],
+        correct: "A"
+      },
+      {
+        question: "Tangga nada relatif minor dari C Mayor adalah...",
+        options: [
+          "A. C Minor",
+          "B. D Minor",
+          "C. E Minor",
+          "D. A Minor",
+          "E. G Minor"
+        ],
+        correct: "D"
+      },
+      {
+        question: "Akor tingkat I (Tonika) pada tangga nada C Mayor terdiri dari nada-nada...",
+        options: [
+          "A. C - E - G",
+          "B. F - A - C",
+          "C. G - B - D",
+          "D. D - F - A",
+          "E. A - C - E"
+        ],
+        correct: "A"
+      },
+      {
+        question: "Urutan nada-nada yang benar untuk tangga nada D Mayor (2 kruis) adalah...",
+        options: [
+          "A. D - E - F - G - A - B - C - D",
+          "B. D - E - Fis - G - A - B - Cis - D",
+          "C. D - E - F - G - A - B - C# - D",
+          "D. D - E - F# - G - A - B - C - D",
+          "E. D - Es - F - G - A - Bes - C - D"
+        ],
+        correct: "B"
+      },
+      {
+        question: "Lagu kebangsaan \"Indonesia Raya\" diciptakan dengan menggunakan tangga nada...",
+        options: [
+          "A. Diatonis Minor",
+          "B. Pentatonis Pelog",
+          "C. Diatonis Mayor",
+          "D. Pentatonis Slendro",
+          "E. Kromatis"
+        ],
+        correct: "C"
+      },
+      {
+        question: "Dalam tangga nada mayor, interval dari nada pertama (Do) ke nada ketiga (Mi) disebut...",
+        options: [
+          "A. Minor Third (Tertsi Kecil)",
+          "B. Perfect Fifth (Kwint Murni)",
+          "C. Major Third (Tertsi Besar)",
+          "D. Perfect Fourth (Kwart Murni)",
+          "E. Major Second (Sekonde Besar)"
+        ],
+        correct: "C"
+      },
+      {
+        question: "Susunan tangga nada 3 kruis (3#) adalah A Mayor. Nada-nada yang terkena tanda # adalah...",
+        options: [
+          "A. F, C, G",
+          "B. F, C, D",
+          "C. F, A, C",
+          "D. F, G, A",
+          "E. C, D, E"
+        ],
+        correct: "A"
+      },
+      {
+        question: "Tangga nada yang merupakan Enharmonic (bunyi sama tapi tulisan berbeda) dari B Mayor (5#) adalah...",
+        options: [
+          "A. Bes Mayor",
+          "B. Ces Mayor",
+          "C. Des Mayor",
+          "D. As Mayor",
+          "E. Ges Mayor"
+        ],
+        correct: "B"
+      },
+      {
+        question: "Rumus untuk menentukan nada dasar tangga nada berkruis (#) selanjutnya adalah dengan interval...",
+        options: [
+          "A. Naik 1 nada",
+          "B. Turun 1 nada",
+          "C. Naik 5 nada (Kwint murni)",
+          "D. Turun 5 nada",
+          "E. Naik 4 nada"
+        ],
+        correct: "C"
+      },
+      {
+        question: "Akor tingkat V (Dominan) pada tangga nada G Mayor adalah...",
+        options: [
+          "A. G - B - D",
+          "B. C - E - G",
+          "C. D - Fis - A",
+          "D. A - C - E",
+          "E. E - G - B"
+        ],
+        correct: "C"
+      },
+      {
+        question: "Nada ke-7 dalam tangga nada mayor disebut dengan istilah...",
+        options: [
+          "A. Tonika",
+          "B. Dominan",
+          "C. Sub-dominan",
+          "D. Leading Tone (Leading Note)",
+          "E. Mediant"
+        ],
+        correct: "D"
+      },
+      {
+        question: "Pola interval untuk tangga nada minor asli (natural) adalah...",
+        options: [
+          "A. 1 – ½ – 1 – 1 – ½ – 1 – 1",
+          "B. 1 – 1 – ½ – 1 – 1 – 1 – ½",
+          "C. 1 – ½ – 1 – 1 – 1 – ½ – 1",
+          "D. 1 – 1 – 1 – ½ – 1 – 1 – 1",
+          "E. ½ – 1 – 1 – ½ – 1 – 1 – 1"
+        ],
+        correct: "A"
+      },
+      {
+        question: "Salah satu ciri utama lagu bertangga nada minor adalah...",
+        options: [
+          "A. Diawali dan diakhiri nada Do",
+          "B. Melodinya lincah dan gembira",
+          "C. Sering digunakan untuk lagu mars",
+          "D. Memberikan nuansa sedih atau khidmat",
+          "E. Selalu menggunakan tempo cepat"
+        ],
+        correct: "D"
+      },
+      {
+        question: "Tangga nada A Minor natural terdiri dari nada-nada...",
+        options: [
+          "A. A - B - C - D - E - F - G - A",
+          "B. A - B - Cis - D - E - Fis - Gis - A",
+          "C. A - B - C - D - E - Fis - G - A",
+          "D. A - B - C - D - E - F - Gis - A",
+          "E. C - D - E - F - G - A - B - C"
+        ],
+        correct: "A"
+      },
+      {
+        question: "Tangga nada minor harmonis adalah tangga nada minor di mana nada ke-...",
+        options: [
+          "A. 6 dinaikkan ½ laras",
+          "B. 7 dinaikkan ½ laras",
+          "C. 6 dan 7 dinaikkan ½ laras",
+          "D. 3 diturunkan ½ laras",
+          "E. 7 diturunkan ½ laras"
+        ],
+        correct: "B"
+      },
+      {
+        question: "Lagu wajib nasional \"Syukur\" dan \"Gugur Bunga\" adalah contoh lagu yang menggunakan tangga nada...",
+        options: [
+          "A. Mayor",
+          "B. Minor",
+          "C. Pelog",
+          "D. Slendro",
+          "E. Kromatis"
+        ],
+        correct: "B"
+      },
+      {
+        question: "Relatif mayor dari tangga nada E Minor adalah...",
+        options: [
+          "A. C Mayor",
+          "B. G Mayor",
+          "C. D Mayor",
+          "D. A Mayor",
+          "E. F Mayor"
+        ],
+        correct: "B"
+      }
+    ];
+
+    let currentQuestion = 0;
+    let studentName = '';
+    let studentClass = '';
+    let answers = {};
+    let isLoading = false;
+
+    const defaultConfig = {
+      quiz_title: "Kuis Interaktif Seni Musik SMA",
+      instruction_text: "Jawablah pertanyaan berikut dengan memilih salah satu jawaban yang paling tepat",
+      background_color: "#667eea",
+      surface_color: "#ffffff",
+      text_color: "#1f2937",
+      primary_action_color: "#667eea",
+      secondary_action_color: "#10b981",
+      font_family: "Segoe UI",
+      font_size: 16
+    };
+
+    async function onConfigChange(config) {
+      const quizTitle = config.quiz_title || defaultConfig.quiz_title;
+      const instructionText = config.instruction_text || defaultConfig.instruction_text;
+      const backgroundColor = config.background_color || defaultConfig.background_color;
+      const surfaceColor = config.surface_color || defaultConfig.surface_color;
+      const textColor = config.text_color || defaultConfig.text_color;
+      const primaryActionColor = config.primary_action_color || defaultConfig.primary_action_color;
+      const secondaryActionColor = config.secondary_action_color || defaultConfig.secondary_action_color;
+      const fontFamily = config.font_family || defaultConfig.font_family;
+      const fontSize = config.font_size || defaultConfig.font_size;
+
+      document.getElementById('quiz-title').textContent = quizTitle;
+      document.getElementById('instruction-text').textContent = instructionText;
+
+      document.body.style.background = `linear-gradient(135deg, ${backgroundColor} 0%, ${backgroundColor}dd 100%)`;
+      document.querySelector('.quiz-card').style.background = surfaceColor;
+      document.querySelector('.quiz-title').style.color = primaryActionColor;
+      
+      document.querySelectorAll('.question-text, .option-label, .result-message').forEach(el => {
+        el.style.color = textColor;
+      });
+
+      document.querySelectorAll('.btn-start, .btn-next, .btn-submit').forEach(el => {
+        el.style.background = primaryActionColor;
+      });
+
+      document.querySelector('.btn-restart').style.background = secondaryActionColor;
+
+      const baseFontStack = 'Tahoma, Geneva, Verdana, sans-serif';
+      document.body.style.fontFamily = `${fontFamily}, ${baseFontStack}`;
+      
+      document.querySelector('.quiz-title').style.fontSize = `${fontSize * 2}px`;
+      document.querySelector('.quiz-subtitle').style.fontSize = `${fontSize}px`;
+      document.querySelectorAll('.question-text').forEach(el => {
+        el.style.fontSize = `${fontSize * 1.05}px`;
+      });
+      document.querySelectorAll('.option-label').forEach(el => {
+        el.style.fontSize = `${fontSize * 0.95}px`;
+      });
+      document.querySelectorAll('.btn').forEach(el => {
+        el.style.fontSize = `${fontSize}px`;
+      });
+    }
+
+    const dataHandler = {
+      onDataChanged(data) {
+        // Data persistence is handled, UI updates if needed
+      }
+    };
+
+    async function initializeApp() {
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (!result.isOk) {
+          console.error('Failed to initialize Data SDK');
+        }
+      }
+
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange,
+          mapToCapabilities: (config) => ({
+            recolorables: [
+              {
+                get: () => config.background_color || defaultConfig.background_color,
+                set: (value) => {
+                  config.background_color = value;
+                  window.elementSdk.setConfig({ background_color: value });
+                }
+              },
+              {
+                get: () => config.surface_color || defaultConfig.surface_color,
+                set: (value) => {
+                  config.surface_color = value;
+                  window.elementSdk.setConfig({ surface_color: value });
+                }
+              },
+              {
+                get: () => config.text_color || defaultConfig.text_color,
+                set: (value) => {
+                  config.text_color = value;
+                  window.elementSdk.setConfig({ text_color: value });
+                }
+              },
+              {
+                get: () => config.primary_action_color || defaultConfig.primary_action_color,
+                set: (value) => {
+                  config.primary_action_color = value;
+                  window.elementSdk.setConfig({ primary_action_color: value });
+                }
+              },
+              {
+                get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+                set: (value) => {
+                  config.secondary_action_color = value;
+                  window.elementSdk.setConfig({ secondary_action_color: value });
+                }
+              }
+            ],
+            borderables: [],
+            fontEditable: {
+              get: () => config.font_family || defaultConfig.font_family,
+              set: (value) => {
+                config.font_family = value;
+                window.elementSdk.setConfig({ font_family: value });
+              }
+            },
+            fontSizeable: {
+              get: () => config.font_size || defaultConfig.font_size,
+              set: (value) => {
+                config.font_size = value;
+                window.elementSdk.setConfig({ font_size: value });
+              }
+            }
+          }),
+          mapToEditPanelValues: (config) => new Map([
+            ["quiz_title", config.quiz_title || defaultConfig.quiz_title],
+            ["instruction_text", config.instruction_text || defaultConfig.instruction_text]
+          ])
+        });
+      }
+    }
+
+    document.getElementById('btn-start').addEventListener('click', async () => {
+      const nameInput = document.getElementById('student-name');
+      const classInput = document.getElementById('student-class');
+      
+      studentName = nameInput.value.trim();
+      studentClass = classInput.value.trim();
+
+      if (!studentName || !studentClass) {
+        showToast('Mohon isi nama dan kelas terlebih dahulu');
+        return;
+      }
+
+      document.getElementById('student-form-section').style.display = 'none';
+      document.getElementById('quiz-content').classList.add('active');
+      renderQuestion();
+    });
+
+    function renderQuestion() {
+      const container = document.getElementById('questions-container');
+      const q = questions[currentQuestion];
+      
+      container.innerHTML = `
+        <div class="question-card">
+          <div class="question-number">Pertanyaan ${currentQuestion + 1} dari ${questions.length}</div>
+          <div class="question-text">${q.question}</div>
+          <div class="options">
+            ${q.options.map((opt, idx) => `
+              <label class="option">
+                <input type="radio" name="question-${currentQuestion}" value="${String.fromCharCode(65 + idx)}" ${answers[currentQuestion] === String.fromCharCode(65 + idx) ? 'checked' : ''}>
+                <span class="option-label">${opt}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          answers[currentQuestion] = e.target.value;
+        });
+      });
+
+      updateProgress();
+      updateNavigationButtons();
+    }
+
+    function updateProgress() {
+      const progress = ((currentQuestion + 1) / questions.length) * 100;
+      document.getElementById('progress-fill').style.width = `${progress}%`;
+    }
+
+    function updateNavigationButtons() {
+      const btnPrevious = document.getElementById('btn-previous');
+      const btnNext = document.getElementById('btn-next');
+      const btnSubmit = document.getElementById('btn-submit');
+
+      btnPrevious.disabled = currentQuestion === 0;
+
+      if (currentQuestion === questions.length - 1) {
+        btnNext.style.display = 'none';
+        btnSubmit.style.display = 'block';
+      } else {
+        btnNext.style.display = 'block';
+        btnSubmit.style.display = 'none';
+      }
+    }
+
+    document.getElementById('btn-previous').addEventListener('click', () => {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        renderQuestion();
+      }
+    });
+
+    document.getElementById('btn-next').addEventListener('click', () => {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        renderQuestion();
+      }
+    });
+
+    document.getElementById('btn-submit').addEventListener('click', async () => {
+      if (isLoading) return;
+      
+      isLoading = true;
+      const submitBtn = document.getElementById('btn-submit');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Menyimpan...';
+
+      let score = 0;
+      questions.forEach((q, idx) => {
+        if (answers[idx] === q.correct) {
+          score++;
+        }
+      });
+
+      const finalScore = Math.round((score / questions.length) * 100);
+
+      if (window.dataSdk) {
+        const result = await window.dataSdk.create({
+          student_name: studentName,
+          student_class: studentClass,
+          answers: JSON.stringify(answers),
+          score: finalScore,
+          completed_at: new Date().toISOString()
+        });
+        await fetch("https://script.google.com/macros/s/AKfycbxIlwUjAo4rZILa_4GflRFj4gvH7-HThdb3xWy13PNu3CrscDmAPwKsRukwrnGGTgKx/exec", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            student_name: studentName,
+            student_class: studentClass,
+            score: finalScore,
+            answers: answers
+          })
+        });
+    
+        if (!result.isOk) {
+          showToast('Terjadi kesalahan saat menyimpan hasil');
+        }
+      }
+
+      isLoading = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Selesai';
+
+      showResults(finalScore);
+    });
+
+    function showResults(score) {
+      document.getElementById('quiz-content').classList.remove('active');
+      document.getElementById('result-screen').classList.add('active');
+
+      document.getElementById('result-student-info').innerHTML = `
+        <p><strong>Nama:</strong> ${studentName}</p>
+        <p><strong>Kelas:</strong> ${studentClass}</p>
+      `;
+
+      document.getElementById('score-display').textContent = `${score}`;
+
+      let message = '';
+      if (score >= 90) {
+        message = '🌟 Tak Kuase Boboboy!!';
+      } else if (score >= 75) {
+        message = '👏 Meletop!.';
+      } else if (score >= 60) {
+        message = '👍 Bole Je.';
+      } else {
+        message = '💪 Nice Try.';
+      }
+
+      document.getElementById('result-message').textContent = message;
+    }
+
+    document.getElementById('btn-restart').addEventListener('click', () => {
+      currentQuestion = 0;
+      answers = {};
+      studentName = '';
+      studentClass = '';
+
+      document.getElementById('student-name').value = '';
+      document.getElementById('student-class').value = '';
+
+      document.getElementById('result-screen').classList.remove('active');
+      document.getElementById('student-form-section').style.display = 'block';
+    });
+
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #ef4444;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        font-weight: 600;
+      `;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+
+    initializeApp();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9bc8890d15ae2328',t:'MTc2ODE3NzcyMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
